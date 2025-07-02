@@ -117,7 +117,6 @@
   <script>
     let booksData = [];
 
-    // 載入 JSON 資料
     fetch('books.json')
       .then(response => response.json())
       .then(data => booksData = data)
@@ -136,16 +135,16 @@
       const results = booksData.filter(book => book.title.includes(input));
       if (results.length > 0) {
         results.forEach(r => {
-          resultDiv.innerHTML += `
+          resultDiv.innerHTML += \`
             <div class="card">
-              <p>✅ <strong>${r.title}</strong></p>
-              <p>🔖 紅利加倍週別：${r.week}</p>
-              ${generateICSLink(r.title, r.week)}
+              <p>✅ <strong>\${r.title}</strong></p>
+              <p>🔖 紅利加倍週別：\${r.week}</p>
+              \${generateICSLink(r.title, r.week)}
             </div>
-          `;
+          \`;
         });
       } else {
-        resultDiv.innerHTML = `<p>❌ 找不到包含「${input}」的書名</p>`;
+        resultDiv.innerHTML = \`<p>❌ 找不到包含「\${input}」的書名</p>\`;
       }
     }
 
@@ -155,24 +154,12 @@
       const start = dates[0].split("/");
       const end = dates[1].split("/");
 
-      const startDate = `${year}${start[0].padStart(2,'0')}${start[1].padStart(2,'0')}`;
-      const endDate = `${year}${end[0].padStart(2,'0')}${(parseInt(end[1])+1).toString().padStart(2,'0')}`;
+      const googleStart = \`\${year}\${start[0].padStart(2, '0')}\${start[1].padStart(2, '0')}T000000Z\`;
+      const googleEnd = \`\${year}\${end[0].padStart(2, '0')}\${end[1].padStart(2, '0')}T000000Z\`;
 
-      const icsContent = [
-        "BEGIN:VCALENDAR",
-        "VERSION:2.0",
-        "BEGIN:VEVENT",
-        `SUMMARY:${title} 紅利點數優惠週`,
-        `DTSTART;VALUE=DATE:${startDate}`,
-        `DTEND;VALUE=DATE:${endDate}`,
-        "END:VEVENT",
-        "END:VCALENDAR"
-      ].join("\n");
+      const googleLink = \`https://calendar.google.com/calendar/u/0/r/eventedit?text=\${encodeURIComponent("親子天下童書展：" + title)}&dates=\${googleStart}/\${googleEnd}\`;
 
-      const blob = new Blob([icsContent], {type: 'text/calendar'});
-      const url = URL.createObjectURL(blob);
-
-      return `<a href="${url}" download="${title}.ics">➕ 加入行事曆</a>`;
+      return \`<a href="\${googleLink}" target="_blank">📆 加入 Google 日曆</a>\`;
     }
   </script>
 </body>
