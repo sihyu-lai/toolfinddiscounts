@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>童書展書名查詢工具</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 600px;
+      margin: 50px auto;
+      text-align: center;
+      background: #f9f9f9;
+      padding: 20px;
+      border-radius: 8px;
+    }
+    h1 {
+      color: #333;
+    }
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      margin: 5px;
+      width: 80%;
+      max-width: 400px;
+    }
+    button {
+      width: auto;
+      cursor: pointer;
+    }
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #444;
+    }
+  </style>
+</head>
+<body>
+  <h1>📚 童書展 書名查詢工具</h1>
+  <input type="text" id="bookInput" placeholder="輸入書名關鍵字">
+  <button onclick="searchBook()">查詢</button>
+  <p id="result"></p>
+
+  <script>
+    let booksData = [];
+
+    // 載入 JSON 資料
+    fetch('books.json')
+      .then(response => response.json())
+      .then(data => booksData = data)
+      .catch(error => console.error('讀取 JSON 失敗', error));
+
+    function searchBook() {
+      const input = document.getElementById('bookInput').value.trim();
+      const resultDiv = document.getElementById('result');
+      if (!input) {
+        resultDiv.textContent = "請輸入書名";
+        return;
+      }
+      const results = booksData.filter(book => book.title.includes(input));
+      if (results.length > 0) {
+        let output = "";
+        results.forEach(r => {
+          output += `✅ ${r.title} ➔ ${r.week}<br>`;
+        });
+        resultDiv.innerHTML = output;
+      } else {
+        resultDiv.textContent = `❌ 找不到包含「${input}」的書名`;
+      }
+    }
+  </script>
+</body>
+</html>
