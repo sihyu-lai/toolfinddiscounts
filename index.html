@@ -3,43 +3,116 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>童書展書名查詢工具</title>
+  <title>2025童書展：紅利加倍書單查詢站</title>
   <style>
     body {
-      font-family: sans-serif;
-      max-width: 600px;
-      margin: 50px auto;
-      text-align: center;
-      background: #f9f9f9;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      background: #f5f5f5;
+      margin: 0;
       padding: 20px;
-      border-radius: 8px;
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      background: white;
+      max-width: 600px;
+      width: 100%;
+      padding: 30px 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .logo {
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    .logo img {
+      max-width: 150px;
+      height: auto;
     }
     h1 {
-      color: #333;
+      color: #2e7d32;
+      font-size: 20px;
+      margin-bottom: 10px;
+      text-align: center;
+      line-height: 1.4;
     }
-    input, button {
-      padding: 10px;
+    p.description {
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 20px;
+      line-height: 1.6;
+      text-align: center;
+    }
+    input {
+      padding: 12px;
       font-size: 16px;
-      margin: 5px;
-      width: 80%;
-      max-width: 400px;
+      width: calc(100% - 24px);
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      margin: 0 auto 10px auto;
+      display: block;
     }
     button {
-      width: auto;
+      padding: 12px 20px;
+      font-size: 16px;
+      background: #2e7d32;
+      color: white;
+      border: none;
+      border-radius: 6px;
       cursor: pointer;
+      display: block;
+      margin: 0 auto 20px auto;
+    }
+    button:hover {
+      background: #27642a;
     }
     #result {
-      margin-top: 20px;
-      font-size: 18px;
-      color: #444;
+      margin-top: 10px;
+    }
+    .card {
+      background: #e8f5e9;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+    .card p {
+      margin: 5px 0;
+      line-height: 1.5;
+    }
+    .card a {
+      display: inline-block;
+      margin-top: 10px;
+      color: #2e7d32;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .card a:hover {
+      text-decoration: underline;
+    }
+    @media (max-width: 480px) {
+      .container {
+        padding: 20px 10px;
+      }
+      h1 {
+        font-size: 18px;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>📚 童書展 書名查詢工具</h1>
-  <input type="text" id="bookInput" placeholder="輸入書名關鍵字">
-  <button onclick="searchBook()">查詢</button>
-  <p id="result"></p>
+  <div class="container">
+    <div class="logo">
+      <img src="https://cms.cdn.91app.com/images/original/41627/c15f8b26-e944-465d-98c1-2e79eb4bac59-1751333096-lxidm5mtno_d.png" alt="童書展 LOGO">
+    </div>
+    <h1>📚 2025童書展：紅利加倍書單查詢站</h1>
+    <p class="description">
+      讀者可以使用此工具，輸入「正確的書名」，就可以查找此書在哪一週會有紅利點數加倍送！<br>
+      若查詢不到，可能顯示此書未符合本次童書展主打唷！
+    </p>
+    <input type="text" id="bookInput" placeholder="輸入書名關鍵字">
+    <button onclick="searchBook()">查詢</button>
+    <div id="result"></div>
+  </div>
 
   <script>
     let booksData = [];
@@ -53,20 +126,53 @@
     function searchBook() {
       const input = document.getElementById('bookInput').value.trim();
       const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = "";
+
       if (!input) {
-        resultDiv.textContent = "請輸入書名";
+        resultDiv.innerHTML = "<p>請輸入書名</p>";
         return;
       }
+
       const results = booksData.filter(book => book.title.includes(input));
       if (results.length > 0) {
-        let output = "";
         results.forEach(r => {
-          output += `✅ ${r.title} ➔ ${r.week}<br>`;
+          resultDiv.innerHTML += `
+            <div class="card">
+              <p>✅ <strong>${r.title}</strong></p>
+              <p>🔖 紅利加倍週別：${r.week}</p>
+              ${generateICSLink(r.title, r.week)}
+            </div>
+          `;
         });
-        resultDiv.innerHTML = output;
       } else {
-        resultDiv.textContent = `❌ 找不到包含「${input}」的書名`;
+        resultDiv.innerHTML = `<p>❌ 找不到包含「${input}」的書名</p>`;
       }
+    }
+
+    function generateICSLink(title, week) {
+      const dates = week.split("-");
+      const year = "2025";
+      const start = dates[0].split("/");
+      const end = dates[1].split("/");
+
+      const startDate = `${year}${start[0].padStart(2,'0')}${start[1].padStart(2,'0')}`;
+      const endDate = `${year}${end[0].padStart(2,'0')}${(parseInt(end[1])+1).toString().padStart(2,'0')}`;
+
+      const icsContent = [
+        "BEGIN:VCALENDAR",
+        "VERSION:2.0",
+        "BEGIN:VEVENT",
+        `SUMMARY:${title} 紅利點數優惠週`,
+        `DTSTART;VALUE=DATE:${startDate}`,
+        `DTEND;VALUE=DATE:${endDate}`,
+        "END:VEVENT",
+        "END:VCALENDAR"
+      ].join("\n");
+
+      const blob = new Blob([icsContent], {type: 'text/calendar'});
+      const url = URL.createObjectURL(blob);
+
+      return `<a href="${url}" download="${title}.ics">➕ 加入行事曆</a>`;
     }
   </script>
 </body>
