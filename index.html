@@ -102,7 +102,7 @@
 <body>
   <div class="container">
     <div class="logo">
-      <img src="https://cms.cdn.91app.com/images/original/41627/c15f8b26-e944-465d-98c1-2e79eb4bac59-1751333096-lxidm5mtno_d.png" alt="童書展 LOGO">
+      <img src="logo.png" alt="童書展 LOGO">
     </div>
     <h1>📚 2025童書展：紅利加倍書單查詢站</h1>
     <p class="description">
@@ -110,17 +110,22 @@
       若查詢不到，可能顯示此書未符合本次童書展主打唷！
     </p>
     <input type="text" id="bookInput" placeholder="輸入書名關鍵字">
-    <button onclick="searchBook()">查詢</button>
+    <button id="searchBtn">查詢</button>
     <div id="result"></div>
   </div>
 
   <script>
     let booksData = [];
 
+    // 載入 JSON 資料
     fetch('books.json')
       .then(response => response.json())
       .then(data => booksData = data)
       .catch(error => console.error('讀取 JSON 失敗', error));
+
+    document.addEventListener("DOMContentLoaded", function() {
+      document.getElementById('searchBtn').addEventListener('click', searchBook);
+    });
 
     function searchBook() {
       const input = document.getElementById('bookInput').value.trim();
@@ -135,31 +140,31 @@
       const results = booksData.filter(book => book.title.includes(input));
       if (results.length > 0) {
         results.forEach(r => {
-          resultDiv.innerHTML += \`
+          resultDiv.innerHTML += `
             <div class="card">
-              <p>✅ <strong>\${r.title}</strong></p>
-              <p>🔖 紅利加倍週別：\${r.week}</p>
-              \${generateICSLink(r.title, r.week)}
+              <p>✅ <strong>${r.title}</strong></p>
+              <p>🔖 紅利加倍週別：${r.week}</p>
+              ${generateGoogleCalLink(r.title, r.week)}
             </div>
-          \`;
+          `;
         });
       } else {
-        resultDiv.innerHTML = \`<p>❌ 找不到包含「\${input}」的書名</p>\`;
+        resultDiv.innerHTML = `<p>❌ 找不到包含「${input}」的書名</p>`;
       }
     }
 
-    function generateICSLink(title, week) {
+    function generateGoogleCalLink(title, week) {
       const dates = week.split("-");
       const year = "2025";
       const start = dates[0].split("/");
       const end = dates[1].split("/");
 
-      const googleStart = \`\${year}\${start[0].padStart(2, '0')}\${start[1].padStart(2, '0')}T000000Z\`;
-      const googleEnd = \`\${year}\${end[0].padStart(2, '0')}\${end[1].padStart(2, '0')}T000000Z\`;
+      const startDate = `${year}${start[0].padStart(2,'0')}${start[1].padStart(2,'0')}T000000Z`;
+      const endDate = `${year}${end[0].padStart(2,'0')}${(parseInt(end[1])+1).toString().padStart(2,'0')}T000000Z`;
 
-      const googleLink = \`https://calendar.google.com/calendar/u/0/r/eventedit?text=\${encodeURIComponent("親子天下童書展：" + title)}&dates=\${googleStart}/\${googleEnd}\`;
+      const gcalUrl = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title + " 紅利點數優惠週")}&dates=${startDate}/${endDate}&details=${encodeURIComponent("童書展紅利加倍週活動")}`;
 
-      return \`<a href="\${googleLink}" target="_blank">📆 加入 Google 日曆</a>\`;
+      return `<a href="${gcalUrl}" target="_blank">➕ 加入 Google 行事曆</a>`;
     }
   </script>
 </body>
