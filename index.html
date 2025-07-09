@@ -121,7 +121,7 @@
   <script>
     let booksData = [];
 
-    fetch('https://script.google.com/macros/s/AKfycbw43RdMONbCGFszzOanAUWGrRhb1joBHuSIH5KRSZkUYkNWEkhdvh7kHx_ASXclk8Rz/exec')
+    fetch('https://script.googleusercontent.com/macros/echo?user_content_key=AehSKLgNEnGNxNU-EQeSk9S0sOjScZfRfjJ0ZdM4OfBD2BLn3tAU9JsuA2tsizJke37f6lqmzSiaZEYPHjNQoNN7v0-8gHqMjC3JuLSj9zCuLgE3yczok2BSZY-sFJ2piO5ly734h0acG22Vu4Og05aTHO9_Qd4_kN_QEAkokEdu49Y-ew3gkwo72GfmdNp8RpFJtYzJJ5gQQtfZt8utfdjcklwOtKt7C_D9JhSB7M2036p4mdk4nQtywmthnfmJ8fwgQl6QSdwvrpoIQT2bmn5Wye9Aq-JW4g&lib=MCmG1RpNre8OvtANy7eCML4Df-NdZZQvd')
       .then(response => response.json())
       .then(data => booksData = data)
       .catch(error => console.error('讀取資料失敗', error));
