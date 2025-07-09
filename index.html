@@ -1,167 +1,89 @@
-
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>2025童書展：紅利加倍書單查詢站</title>
+  <title>2025童書展紅利加倍查詢</title>
   <style>
     body {
-      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-      background: #f5f5f5;
-      margin: 0;
+      font-family: '微軟正黑體', sans-serif;
+      max-width: 700px;
+      margin: 40px auto;
       padding: 20px;
-      display: flex;
-      justify-content: center;
+      color: #333;
     }
-    .container {
-      background: white;
-      max-width: 600px;
+    h2 {
+      color: #197d00;
+    }
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      margin-top: 10px;
       width: 100%;
-      padding: 30px 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      box-sizing: border-box;
     }
-    .logo {
-      text-align: center;
-      margin-bottom: 15px;
-    }
-    .logo img {
-      max-width: 150px;
-      height: auto;
-    }
-    h1 {
-      color: #2e7d32;
-      font-size: 20px;
-      margin-bottom: 10px;
-      text-align: center;
-      line-height: 1.4;
-    }
-    p.description {
-      font-size: 14px;
-      color: #555;
-      margin-bottom: 20px;
-      line-height: 1.6;
-      text-align: center;
-    }
-    input {
-      padding: 12px;
-      font-size: 16px;
-      width: calc(100% - 24px);
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      margin: 0 auto 10px auto;
-      display: block;
-    }
-    button {
-      padding: 12px 20px;
-      font-size: 16px;
-      background: #2e7d32;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      display: block;
-      margin: 0 auto 20px auto;
-    }
-    button:hover {
-      background: #27642a;
-    }
-    #result {
-      margin-top: 10px;
-    }
-    .card {
-      background: #e8f5e9;
-      border-radius: 8px;
+    .result {
+      margin-top: 20px;
       padding: 15px;
-      margin-bottom: 15px;
+      background: #f2f8f2;
+      border-left: 5px solid #4caf50;
     }
-    .card p {
-      margin: 5px 0;
-      line-height: 1.5;
-    }
-    .card a {
-      display: inline-block;
+    .calendar-button {
       margin-top: 10px;
-      color: #2e7d32;
+      display: inline-block;
+      padding: 10px 15px;
+      background-color: #4caf50;
+      color: white;
       text-decoration: none;
-      font-weight: bold;
+      border-radius: 6px;
     }
-    .card a:hover {
-      text-decoration: underline;
-    }
-    @media (max-width: 480px) {
-      .container {
-        padding: 20px 10px;
-      }
-      h1 {
-        font-size: 18px;
-      }
+    .error {
+      margin-top: 20px;
+      color: red;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="logo">
-      <img src="https://cms.cdn.91app.com/images/original/41627/c15f8b26-e944-465d-98c1-2e79eb4bac59-1751333096-lxidm5mtno_d.png" alt="童書展 LOGO">
-    </div>
-    <h1>📚 2025童書展：紅利點數加倍書單查詢站</h1>
-    <p class="description">
-     只要輸入你想查的書名，就能知道這本書哪一週有紅利點數加倍送，還能直接加入行事曆提醒，不怕忘記撿好康喔！<br>
+  <h2>📚 2025童書展：紅利點數加倍書單查詢站</h2>
+  <p>只要輸入你想查的書名，就能知道紅利加倍週次，還能一鍵加入行事曆提醒！</p>
 
-如果查不到，可能是這本書沒有參加這次童書展的加倍送活動。<br>
+  <input type="text" id="search" placeholder="輸入書名..." />
+  <button onclick="search()">查詢</button>
 
-※這個工具是小編特別準備的小幫手，已經盡力整理了，若有漏掉的地方，還請多多包涵喔！
-    </p>
-    <input type="text" id="bookInput" placeholder="輸入書名關鍵字">
-    <button onclick="searchBook()">查詢</button>
-    <div id="result"></div>
-  </div>
+  <div id="output"></div>
 
   <script>
-    let booksData = [];
+    const api = "https://script.google.com/macros/s/AKfycbw43RdMONbCGFszzOanAUWGrRhb1joBHuSIH5KRSZkUYkNWEkhdvh7kHx_ASXclk8Rz/exec";
 
-    fetch('https://script.googleusercontent.com/macros/echo?user_content_key=AehSKLgNEnGNxNU-EQeSk9S0sOjScZfRfjJ0ZdM4OfBD2BLn3tAU9JsuA2tsizJke37f6lqmzSiaZEYPHjNQoNN7v0-8gHqMjC3JuLSj9zCuLgE3yczok2BSZY-sFJ2piO5ly734h0acG22Vu4Og05aTHO9_Qd4_kN_QEAkokEdu49Y-ew3gkwo72GfmdNp8RpFJtYzJJ5gQQtfZt8utfdjcklwOtKt7C_D9JhSB7M2036p4mdk4nQtywmthnfmJ8fwgQl6QSdwvrpoIQT2bmn5Wye9Aq-JW4g&lib=MCmG1RpNre8OvtANy7eCML4Df-NdZZQvd')
-      .then(response => response.json())
-      .then(data => booksData = data)
-      .catch(error => console.error('讀取資料失敗', error));
+    async function search() {
+      const keyword = document.getElementById("search").value.trim();
+      const output = document.getElementById("output");
+      output.innerHTML = "";
 
-    function searchBook() {
-      const input = document.getElementById('bookInput').value.trim();
-      const resultDiv = document.getElementById('result');
-      resultDiv.innerHTML = "";
-
-      if (!input) {
-        resultDiv.innerHTML = "<p>請輸入書名</p>";
+      if (!keyword) {
+        output.innerHTML = `<div class="error">請輸入書名再查詢喔！</div>`;
         return;
       }
 
-      const results = booksData.filter(book => book.title.includes(input));
-      if (results.length > 0) {
-        results.forEach(r => {
-          resultDiv.innerHTML += `
-            <div class="card">
-              <p>✅ <strong>${r.title}</strong></p>
-              <p>🔖 紅利加倍週別：${r.week}</p>
-              ${generateCalendarLink(r.title, r.week)}
-            </div>
-          `;
-        });
-      } else {
-        resultDiv.innerHTML = `<p>❌ 找不到包含「${input}」的書名</p>`;
+      try {
+        const res = await fetch(api);
+        const data = await res.json();
+
+        const result = data.find(item => item.title.includes(keyword));
+
+        if (!result) {
+          output.innerHTML = `<div class="error">❌ 找不到包含「${keyword}」的書名</div>`;
+        } else {
+          output.innerHTML = `
+            <div class="result">
+              ✅ 查詢結果：<br/>
+              書名：<strong>${result.title}</strong><br/>
+              紅利加倍週：<strong>${result.week}</strong><br/>
+              <a class="calendar-button" href="${result.calendarUrl}" target="_blank">加入日曆提醒</a>
+            </div>`;
+        }
+      } catch (e) {
+        output.innerHTML = `<div class="error">⚠️ 查詢發生錯誤，請稍後再試。</div>`;
       }
-    }
-
-    function generateCalendarLink(title, week) {
-      const dates = week.split("-");
-      const year = "2025";
-      const start = dates[0].split("/");
-      const end = dates[1].split("/");
-
-      const startDate = `${year}${start[0].padStart(2,'0')}${start[1].padStart(2,'0')}`;
-      const endDate = `${year}${end[0].padStart(2,'0')}${(parseInt(end[1])+1).toString().padStart(2,'0')}`;
-
-      return `<a href="https://calendar.google.com/calendar/u/0/r/eventedit?text=親子天下童書展：${title}&dates=${startDate}/${endDate}" target="_blank">📆 加入日曆</a>`;
     }
   </script>
 </body>
