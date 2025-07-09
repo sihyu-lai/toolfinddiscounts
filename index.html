@@ -129,9 +129,10 @@
       .then(data => {
         booksData = data;
         document.getElementById("result").innerHTML = "✅ 資料載入完成，請開始查詢吧！";
+        console.log("✅ 取得 booksData：", booksData);
       })
       .catch(error => {
-        console.error("資料讀取失敗", error);
+        console.error("❌ 資料讀取失敗", error);
         document.getElementById("result").innerHTML = "❌ 資料讀取失敗，請稍後再試。";
       });
 
@@ -153,8 +154,11 @@
       }
 
       const results = booksData.filter(book => book.title.includes(input));
+      console.log("🔍 查詢結果：", results);
+
       if (results.length > 0) {
         results.forEach(r => {
+          console.log("🔍 title:", r.title, "week:", r.week);
           resultDiv.innerHTML += `
             <div class="card">
               <p>✅ <strong>${r.title}</strong></p>
@@ -172,25 +176,38 @@
     }
 
     function generateCalendarLink(title, week) {
+      const year = "2025";
+
+      if (!week || typeof week !== "string") {
+        console.error("❌ week 不存在或非字串：", week);
+        return "<p>❌ 行事曆建立失敗（無效的 week 資料）</p>";
+      }
+
       const cleanWeek = week.replace(/2025\//g, "").replace(/\s+/g, "");
       const dates = cleanWeek.split("-");
 
-      const year = "2025";
-      if (dates.length !== 2) {
-        console.error("week 格式錯誤，應為 MM/DD-MM/DD，實際為：", week);
+      if (!Array.isArray(dates) || dates.length !== 2) {
+        console.error("❌ week 格式錯誤，需為 MM/DD-MM/DD，實際為：", week);
         return "<p>❌ 行事曆建立失敗（日期格式錯誤）</p>";
       }
 
-      const start = dates[0].split("/");
-      const end = dates[1].split("/");
+      const start = dates[0]?.split("/");
+      const end = dates[1]?.split("/");
 
-      if (start.length !== 2 || end.length !== 2) {
-        console.error("日期 split 格式錯誤，start:", dates[0], "end:", dates[1]);
-        return "<p>❌ 行事曆建立失敗（日期格式錯誤）</p>";
+      if (!start || start.length !== 2 || !end || end.length !== 2) {
+        console.error("❌ 日期 split 格式錯誤，start:", dates[0], "end:", dates[1]);
+        return "<p>❌ 行事曆建立失敗（日期 split 格式錯誤）</p>";
       }
 
-      const startDate = `${year}${start[0].padStart(2,'0')}${start[1].padStart(2,'0')}T000000`;
-      const endDate = `${year}${end[0].padStart(2,'0')}${(parseInt(end[1])+1).toString().padStart(2,'0')}T000000`;
+      const monthStart = start[0].padStart(2, '0');
+      const dayStart = start[1].padStart(2, '0');
+
+      const monthEnd = end[0].padStart(2, '0');
+      const dayEndInt = parseInt(end[1]);
+      const dayEnd = (isNaN(dayEndInt) ? end[1] : (dayEndInt + 1)).toString().padStart(2, '0');
+
+      const startDate = `${year}${monthStart}${dayStart}T000000`;
+      const endDate = `${year}${monthEnd}${dayEnd}T000000`;
 
       const url = `https://calendar.google.com/calendar/u/0/r/eventedit?text=📚 ${encodeURIComponent(title)}紅利加倍週&dates=${startDate}/${endDate}`;
       return `<a href="${url}" target="_blank">📆 加入行事曆</a>`;
